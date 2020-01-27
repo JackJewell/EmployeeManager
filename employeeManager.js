@@ -85,6 +85,7 @@ function start(){
                 update("department");
                 break;
             case "Exit":
+                connection.end();
                 process.exit(-1);
                  break;
         }
@@ -97,9 +98,9 @@ function view(item){
     connection.query(`SELECT * FROM ${item}`, function(err, res) {
         if (err) throw err;
         console.table(res);
-        connection.end();
+        start();
       });
-    start();
+    
 }
 
 function viewBy(){
@@ -123,86 +124,144 @@ function add(querySelector){
               });
             break;
         case "role":
-            inquirer
-        .prompt([
-
-        ])
-        .then(response =>{
-
-        });
+            connection.query(`SELECT * FROM department`, function(err, res) {
+                if (err) throw err;
+                addRole(res);
+              });
             break;
         case "department":
             inquirer
-        .prompt([
-
-        ])
-        .then(response =>{
-
-        });
+                .prompt([
+                    {
+                        name: "name",
+                        type: "input",
+                        message: "Please enter the new Department's name:"
+                    }
+                ])
+                .then(response =>{
+                    connection.query(
+                        "INSERT INTO department SET ?",
+                        {
+                        name: response.name
+                        },
+                        function(err) {
+                        if (err) throw err;
+                        console.log("Department added successfully");
+                        // re-prompt the user for if they want to bid or post
+                        start();
+                        }
+                    );
+                });
             break;
     }
 }
 
-function addEmployee(res){
+function addEmployee(roleRes){
     let roles = [];
-    let ids = [];
-    res.forEach(element => {
-        console.log(element.title);
+    roleRes.forEach(element => {
          roles.push(element.title);
-         ids.push(element.id);
     });
     inquirer
-    .prompt([
-        {
-        name: "firstName",
-        type: "input",
-        message: "Please enter the employee's first name:"
-        },
-        {
-        name: "lastName",
-        type: "input",
-        message: "Please enter the employee's last name:"
-        },
-        {
-        name: "role",
-        type: "list",
-        choices: roles,
-        filter: function(val){
-            let realValue = 0;
-            res.forEach(element => {
-                if(val === element.title){
-                    realValue = element.id;
-                    return realValue;
-                }
-            });
-            return realValue;
-        },
-        message: "Please choose the employee's title:"
-        },
-        {
-        name: "manager",
-        type: "input",
-        message: "Please enter the employee's manager:"
-        }
-    ])
-    .then(response =>{
-        console.log(response);
-        start();
-        /*connection.query(
-            "INSERT INTO employees SET ?",
+        .prompt([
             {
-              first_name: response.firstName,
-              last_name: response.last,
-              role_id: response.role,
-              manager_id: response.manager || ""
+            name: "firstName",
+            type: "input",
+            message: "Please enter the employee's first name:"
             },
-            function(err) {
-              if (err) throw err;
-              console.log("Employee added successfully");
-              // re-prompt the user for if they want to bid or post
-              start();
+            {
+            name: "lastName",
+            type: "input",
+            message: "Please enter the employee's last name:"
+            },
+            {
+            name: "role",
+            type: "list",
+            choices: roles,
+            filter: function(val){
+                let realValue = 0;
+                roleRes.forEach(element => {
+                    if(val === element.title){
+                        realValue = element.id;
+                        return realValue;
+                    }
+                });
+                return realValue;
+            },
+            message: "Please choose the employee's title:"
+            },
+            {
+            name: "manager",
+            type: "input",
+            message: "Please enter the employee's manager:"
             }
-          );
-          */
+        ])
+        .then(response =>{
+            console.log(response);
+            connection.query(
+                "INSERT INTO employees SET ?",
+                {
+                first_name: response.firstName,
+                last_name: response.lastName,
+                role_id: response.role,
+                manager_id: response.manager || null
+                },
+                function(err) {
+                if (err) throw err;
+                console.log("Employee added successfully");
+                start();
+                }
+            );
+        });
+}
+
+function addRole(deptRes){
+    let depts = [];
+    deptRes.forEach(element => {
+         depts.push(element.name);
     });
+    inquirer
+        .prompt([
+            {
+            name: "title",
+            type: "input",
+            message: "Please enter this positions's Title:"
+            },
+            {
+            name: "salary",
+            type: "input",
+            message: "Please enter this position's annual Salary:"
+            },
+            {
+            name: "department",
+            type: "list",
+            choices: depts,
+            filter: function(val){
+                let realValue = 0;
+                deptRes.forEach(element => {
+                    if(val === element.name){
+                        realValue = element.id;
+                        return realValue;
+                    }
+                });
+                return realValue;
+            },
+            message: "Please choose this position's Department:"
+            }
+        ])
+        .then(response =>{
+            console.log(response);
+            connection.query(
+                "INSERT INTO role SET ?",
+                {
+                title: response.title,
+                salary: response.salary,
+                department_id: response.department
+                },
+                function(err) {
+                if (err) throw err;
+                console.log("Role added successfully");
+                start();
+                }
+            );
+        });
 }
