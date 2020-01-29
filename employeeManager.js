@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
     user: "root",
   
     // Your password
-    password: "ArchAngelPassword1",
+    password: "newPassword1",
     database: "company_db"
   });
 
@@ -103,8 +103,11 @@ function view(item){
     
 }
 
-function viewBy(){
-
+function viewBy(viewItem,byItem){
+    connection.query(`SELECT * FROM department`, function(err, res) {
+        if (err) throw err;
+        viewByDepartment(res);
+      });
 }
 
 function update(){
@@ -264,4 +267,63 @@ function addRole(deptRes){
                 }
             );
         });
+}
+
+function viewByDepartment(deptVar){
+    let depts = [];
+    deptVar.forEach(element=>{
+        depts.push(element.name);
+    })
+    inquirer
+        .prompt([
+            {
+                name: "deptChoice",
+                type: "list",
+                choices:depts,
+                filter: function(val){
+                    let realValue = 0;
+                    deptVar.forEach(element => {
+                        if(val === element.name){
+                            realValue = element.id;
+                            return realValue;
+                        }
+                    });
+                    return realValue;
+                },
+                message: "Choose Department to view by:"
+            }
+        ])
+        .then(response =>{
+            connection.query(
+                `SELECT id,title 
+                FROM role
+                WHERE department_id=${response.deptChoice}`,
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res);
+                    selectEmployees(res);
+                }
+            )
+        })
+}
+
+function selectEmployees(roleVar){
+    let selector = "";
+    for (var i=0, len=roleVar.length; i<len; i++){
+        selector += roleVar[i].id
+        if (roleVar[i+1] !== undefined){
+            selector += ","
+        }
+    }
+    connection.query(
+                `SELECT * 
+                FROM employees 
+                WHERE role_id IN (${selector})`,
+                function(err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    start();
+                }
+            )
+    
 }

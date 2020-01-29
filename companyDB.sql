@@ -51,79 +51,79 @@ INSERT INTO department(name)
 VALUES("Management");
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Technology Executive",200000,7);
+VALUES("Technology Executive",200000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead Software Engineer",120000,0);
+VALUES("Lead Software Engineer",120000,1);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Software Engineer",70000,0);
+VALUES("Software Engineer",70000,1);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Art Executive",180000,7);
+VALUES("Art Executive",180000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead 2D Artist",110000,1);
+VALUES("Lead 2D Artist",110000,2);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("2D Artist",60000,1);
+VALUES("2D Artist",60000,2);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead 3D Artist",120000,1);
+VALUES("Lead 3D Artist",120000,2);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("3D Artist",70000,1);
+VALUES("3D Artist",70000,2);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead Level Designer",110000,1);
+VALUES("Lead Level Designer",110000,2);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Level Designer",70000,1);
+VALUES("Level Designer",70000,2);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Audio Executive",180000,7);
+VALUES("Audio Executive",180000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead Audio Engineer",120000,2);
+VALUES("Lead Audio Engineer",120000,3);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Audio Engineer",70000,2);
+VALUES("Audio Engineer",70000,3);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Writing Executive",180000,7);
+VALUES("Writing Executive",180000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead Story Writer",110000,3);
+VALUES("Lead Story Writer",110000,4);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Story Writer",60000,3);
+VALUES("Story Writer",60000,4);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead Accountant",150000,4);
+VALUES("Lead Accountant",150000,5);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Accountant",90000,4);
+VALUES("Accountant",90000,5);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Marketing Executive",180000,7);
+VALUES("Marketing Executive",180000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead Marketing Analyst",110000,5);
+VALUES("Lead Marketing Analyst",110000,6);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Marketing Analyst",60000,5);
+VALUES("Marketing Analyst",60000,6);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Lead HR Representative",110000,6);
+VALUES("Lead HR Representative",110000,7);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("HR Representative",60000,6);
+VALUES("HR Representative",60000,7);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Chief Operations Officer",250000,7);
+VALUES("Chief Operations Officer",250000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Chief Financial Officer",250000,7);
+VALUES("Chief Financial Officer",250000,8);
 
 INSERT INTO role(title,salary,department_id)
-VALUES("Chief Executive Officer",300000,7);
+VALUES("Chief Executive Officer",300000,8);
