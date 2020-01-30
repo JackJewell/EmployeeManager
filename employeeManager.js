@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
     user: "root",
   
     // Your password
-    password: "newPassword1",
+    password: "ArchAngelPassword1",
     database: "company_db"
   });
 
@@ -28,12 +28,8 @@ function start(){
         {
             type: "list",
             message: "What would you like to do?",
-            choices: ["View all Employees","View all Employees by Department",
-                        "View all Employees by Manager","Add Employee",
-                        "Remove Employee","Update Employee Role", "Update Employee Manager",
-                        "View all Roles", "Add Role", "Remove Role",
-                        "Update Role", "View All Departments","Add Department","Remove Department",
-                        "Update Department","Exit"],
+            choices: ["View all Employees","View all Employees by Department","Add Employee","Update Employee Role", "Update Employee Manager",
+                        "View all Roles", "Add Role", "View All Departments","Add Department","Exit"],
             name: "role"
         }
     ])
@@ -45,20 +41,14 @@ function start(){
             case "View all Employees by Department":
                 viewBy("employees","department");
                 break;
-            case "View all Employees by Manager":
-                viewBy("employees","manager");
-                break;
             case "Add Employee":
                 add("employee");
                 break;
-            case "Remove Employee":
-                remove("employee");
-                break;
             case "Update Employee Role":
-                update("employee","role")
+                updateRole()
                 break;
             case "Update Employee Manager":
-                update("employee","manager")
+                updateManager()
                 break;
             case "View all Roles":
                 view("role");
@@ -66,23 +56,11 @@ function start(){
             case "Add Role":
                 add("role");
                 break;
-            case "Remove Role":
-                remove("role");
-                break;
-            case "Update Role":
-                update("role");
-                break;
             case "View All Departments":
                 view("department");
                 break;
             case "Add Department":
                 add("department");
-                break;
-            case "Remove Department":
-                remove("department");
-                break;
-            case "Update Department":
-                update("department");
                 break;
             case "Exit":
                 connection.end();
@@ -110,12 +88,90 @@ function viewBy(viewItem,byItem){
       });
 }
 
-function update(){
-
+function updateRole(){
+    connection.query(
+        `SELECT first_name,last_name,id
+        FROM employees`,
+         function(err, res) {
+        if (err) throw err;
+        employees = res;
+        updateRole2(res);
+      });
 }
 
-function remove(){
+function updateRole2(empItem){
+    let employeeVar = [];
+    empItem.forEach(element => {
+        let nameVar = element.first_name +" "+element.last_name;
+        employeeVar.push(nameVar);
+    });
 
+    connection.query(`SELECT title,id FROM role`, function(err, res) {
+        if (err) throw err;
+        updateRoleFinal(empItem,employeeVar,res);
+      });
+}
+
+function updateRoleFinal(empItem,empVar,roleVar){
+    let roles = [];
+    roleVar.forEach(element => {
+         roles.push(element.title);
+    }); 
+    inquirer
+          .prompt([
+              {
+                  name: "empChoice",
+                  type: "list",
+                  choices:empVar,
+                  filter: function(val){
+                      let n = val.search(" ");
+                      let name = val.slice(0,n);
+                      let realValue = 0;
+                      empItem.forEach(element => {
+                          if(name === element.first_name){
+                              realValue = element.id;
+                              return realValue;
+                          }
+                      });
+                      return realValue;
+                  },
+                  message: "Choose Employee to Update:"
+              },
+              {
+                name: "roleChoice",
+                type: "list",
+                choices:roles,
+                filter: function(val){
+                    let realValue = 0;
+                    roleVar.forEach(element => {
+                        if(val === element.title){
+                            realValue = element.id;
+                            return realValue;
+                        }
+                    });
+                    return realValue;
+                },
+                message: "Choose new Role:"
+            },
+          ])
+          .then(response =>{
+            connection.query(
+                "UPDATE employees SET ? WHERE ?",
+                [
+                {
+                    role_id: response.roleChoice
+                },
+                {
+                    id: response.empChoice
+                }
+                ],
+                function(error) {
+                if (error) throw err;
+                console.log("Employee updated successfully!");
+                start();
+                }
+            );
+          });
 }
 
 function add(querySelector){
@@ -327,3 +383,4 @@ function selectEmployees(roleVar){
             )
     
 }
+
