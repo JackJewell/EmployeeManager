@@ -2,6 +2,7 @@ let mysql = require('mysql');
 let inquirer = require('inquirer');
 let cTable = require('console.table');
 
+//Stores DB connection data
 var connection = mysql.createConnection({
     host: "localhost",
   
@@ -12,23 +13,26 @@ var connection = mysql.createConnection({
     user: "root",
   
     // Your password
-    password: "ArchAngelPassword1",
+    password: "newPassword1",
     database: "company_db"
   });
 
+  //Establishes connection to DB
   connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     start();
   });
 
+//starts program
 function start(){
+    //prompts user for what they would like to do, and then routes them to the appropriate functions
   inquirer
     .prompt([
         {
             type: "list",
             message: "What would you like to do?",
-            choices: ["View all Employees","View all Employees by Department","Add Employee","Update Employee Role", "Update Employee Manager",
+            choices: ["View all Employees","View all Employees by Department","Add Employee","Update Employee Role",
                         "View all Roles", "Add Role", "View All Departments","Add Department","Exit"],
             name: "role"
         }
@@ -39,28 +43,62 @@ function start(){
                 view("employees");
                 break;
             case "View all Employees by Department":
-                viewBy("employees","department");
+                connection.query(`SELECT * FROM department`, function(err, res) {
+                    if (err) throw err;
+                    viewByDepartment(res);
+                  });
                 break;
             case "Add Employee":
-                add("employee");
+                connection.query(`SELECT * FROM role`, function(err, res) {
+                    if (err) throw err;
+                    addEmployee(res);
+                  });
                 break;
             case "Update Employee Role":
-                updateRole()
-                break;
-            case "Update Employee Manager":
-                updateManager()
+                connection.query(
+                    `SELECT first_name,last_name,id
+                    FROM employees`,
+                     function(err, res) {
+                    if (err) throw err;
+                    employees = res;
+                    updateRole(res);
+                  });
                 break;
             case "View all Roles":
                 view("role");
                 break;
             case "Add Role":
-                add("role");
+                connection.query(`SELECT * FROM department`, function(err, res) {
+                    if (err) throw err;
+                    addRole(res);
+                  });
                 break;
             case "View All Departments":
                 view("department");
                 break;
             case "Add Department":
-                add("department");
+                inquirer
+                .prompt([
+                    {
+                        name: "name",
+                        type: "input",
+                        message: "Please enter the new Department's name:"
+                    }
+                ])
+                .then(response =>{
+                    connection.query(
+                        "INSERT INTO department SET ?",
+                        {
+                        name: response.name
+                        },
+                        function(err) {
+                        if (err) throw err;
+                        console.log("Department added successfully");
+                        // re-prompt the user for if they want to bid or post
+                        start();
+                        }
+                    );
+                });
                 break;
             case "Exit":
                 connection.end();
@@ -71,8 +109,8 @@ function start(){
 ;
 }
 
+//Pulls all data from the selected DB
 function view(item){
-
     connection.query(`SELECT * FROM ${item}`, function(err, res) {
         if (err) throw err;
         console.table(res);
@@ -81,25 +119,8 @@ function view(item){
     
 }
 
-function viewBy(viewItem,byItem){
-    connection.query(`SELECT * FROM department`, function(err, res) {
-        if (err) throw err;
-        viewByDepartment(res);
-      });
-}
-
-function updateRole(){
-    connection.query(
-        `SELECT first_name,last_name,id
-        FROM employees`,
-         function(err, res) {
-        if (err) throw err;
-        employees = res;
-        updateRole2(res);
-      });
-}
-
-function updateRole2(empItem){
+//draws in employee information and pulls in role information
+function updateRole(empItem){
     let employeeVar = [];
     empItem.forEach(element => {
         let nameVar = element.first_name +" "+element.last_name;
@@ -112,6 +133,7 @@ function updateRole2(empItem){
       });
 }
 
+//draws in role and employee info, prompts for user to select employee, and new role. Then updates employee data
 function updateRoleFinal(empItem,empVar,roleVar){
     let roles = [];
     roleVar.forEach(element => {
@@ -174,47 +196,7 @@ function updateRoleFinal(empItem,empVar,roleVar){
           });
 }
 
-function add(querySelector){
-    switch(querySelector){
-        case "employee":
-            connection.query(`SELECT * FROM role`, function(err, res) {
-                if (err) throw err;
-                addEmployee(res);
-              });
-            break;
-        case "role":
-            connection.query(`SELECT * FROM department`, function(err, res) {
-                if (err) throw err;
-                addRole(res);
-              });
-            break;
-        case "department":
-            inquirer
-                .prompt([
-                    {
-                        name: "name",
-                        type: "input",
-                        message: "Please enter the new Department's name:"
-                    }
-                ])
-                .then(response =>{
-                    connection.query(
-                        "INSERT INTO department SET ?",
-                        {
-                        name: response.name
-                        },
-                        function(err) {
-                        if (err) throw err;
-                        console.log("Department added successfully");
-                        // re-prompt the user for if they want to bid or post
-                        start();
-                        }
-                    );
-                });
-            break;
-    }
-}
-
+//Draws in role data and allows the user to enter a new employee, then updates that data in the DB
 function addEmployee(roleRes){
     let roles = [];
     roleRes.forEach(element => {
@@ -273,6 +255,7 @@ function addEmployee(roleRes){
         });
 }
 
+//draws in dept data and allows the user to create a new role, then adds that data to the DB.
 function addRole(deptRes){
     let depts = [];
     deptRes.forEach(element => {
@@ -325,6 +308,7 @@ function addRole(deptRes){
         });
 }
 
+//Draws in department data, then allows the user to choose a department to sort by
 function viewByDepartment(deptVar){
     let depts = [];
     deptVar.forEach(element=>{
@@ -363,6 +347,7 @@ function viewByDepartment(deptVar){
         })
 }
 
+//draws in dept data and user choice, then prints all selected employees to the console
 function selectEmployees(roleVar){
     let selector = "";
     for (var i=0, len=roleVar.length; i<len; i++){
